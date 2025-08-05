@@ -103,4 +103,65 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
-module.exports = { getUserProfile,updateUserProfile, followUser, getUserByUsername };
+
+// Get user followers
+const getUserFollowers = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById(userId)
+      .populate({
+        path: 'followers',
+        select: 'username displayName profilePicture',
+        options: { skip, limit }
+      });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      followers: user.followers,
+      page,
+      limit,
+      totalFollowers: user.followersCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching followers' });
+  }
+};
+
+// Get user following
+const getUserFollowing = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById(userId)
+      .populate({
+        path: 'following',
+        select: 'username displayName profilePicture',
+        options: { skip, limit }
+      });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      following: user.following,
+      page,
+      limit,
+      totalFollowing: user.followingCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching following' });
+  }
+};
+
+module.exports = { getUserProfile,updateUserProfile, followUser, getUserByUsername ,getUserFollowers,getUserFollowing};
