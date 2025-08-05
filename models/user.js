@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
     maxlength: 160,
     default: ''
   },
+  profilePicture: {
+  type: String,
+  default: 'https://via.placeholder.com/150x150?text=User' // Default placeholder
+  },
+  coverPicture: {
+  type: String, 
+  default: 'https://via.placeholder.com/600x200?text=Cover'
+},
   followersCount: {
     type: Number,
     default: 0
