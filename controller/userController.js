@@ -10,6 +10,37 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// Update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const { displayName, bio } = req.body;
+    const userId = req.user._id;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...(displayName && { displayName }),
+        ...(bio !== undefined && { bio }) // Allow empty string for bio
+      },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    res.status(500).json({ error: 'Error updating profile' });
+  }
+};
+
 // Follow/Unfollow user
 const followUser = async (req, res) => {
   try {
@@ -72,4 +103,4 @@ const getUserByUsername = async (req, res) => {
   }
 };
 
-module.exports = { getUserProfile, followUser, getUserByUsername };
+module.exports = { getUserProfile,updateUserProfile, followUser, getUserByUsername };
