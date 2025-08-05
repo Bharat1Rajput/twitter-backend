@@ -2,12 +2,16 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/database');
 const User = require('./models/user');
+const authRoutes = require('./routes/authRoutes');
 
 // Connect to the database
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(express.json());
+app.use('/api/auth', authRoutes);
 
 app.get('/',(req,res)=>{
     res.json("hello this is something extra nice");
