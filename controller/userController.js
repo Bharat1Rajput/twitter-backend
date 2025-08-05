@@ -54,12 +54,12 @@ const followUser = async (req, res) => {
     const userToFollow = await User.findById(userId);
     const currentUser = await User.findById(currentUserId);
 
+
     if (!userToFollow) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const isFollowing = currentUser.following.includes(userId);
-    
 
     if (isFollowing) {
       // Unfollow
