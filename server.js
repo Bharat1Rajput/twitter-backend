@@ -1,38 +1,43 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
 const connectDB = require('./config/database');
-const User = require('./models/user');
-const authRoutes = require('./routes/authRoutes');
 
-// Connect to the database
+// Import routes
+const authRoutes = require('./routes/auth');
+const tweetRoutes = require('./routes/tweets');
+const userRoutes = require('./routes/user');
+
+// Connect to database
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Security middleware
+app.use(helmet());
+app.use(cors());
+
+// Basic middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tweets', tweetRoutes);
+app.use('/api/users', userRoutes);
 
-app.get('/',(req,res)=>{
-    res.json("hello this is something extra nice");
+app.get('/', (req, res) => {
+  res.json({ message: 'Twitter Backend API is running!' });
 });
 
-
-app.get('/test-user', async (req, res) => {
-  try {
-    const userCount = await User.countDocuments();
-    res.json({ message: 'User model working!', userCount });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
-app.get('/get-this',(req,res)=>{
-    res.json({mes: 'this is message !!!!',name : 'bharat bhai is writting',age : 34})
-})
-
-app.listen(PORT,()=>{
-    console.log(`app is listening on port ${PORT}`);
-})
-
-
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
