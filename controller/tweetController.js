@@ -93,4 +93,90 @@ const deleteTweet = async (req, res) => {
   }
 };
 
-module.exports = { createTweet, getTweets, likeTweet, deleteTweet };
+// Get personalized timeline (tweets from followed users)
+const getPersonalizedTimeline = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    const followingIds = user.following;
+
+    // Include user's own tweets + tweets from followed users
+    const tweets = await Tweet.find({
+      author: { $in: [...followingIds, userId] }
+    })
+    .populate('author', 'username displayName profilePicture isVerified')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+    res.json({ 
+      tweets, 
+      page: parseInt(page), 
+      limit: parseInt(limit),
+      message: 'Personalized timeline'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching timeline' });
+  }
+};
+
+// Get user's tweets
+const getUserTweets = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const tweets = await Tweet.find({ author: userId })
+      .populate('author', 'username displayName profilePicture')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const totalTweets = await Tweet.countDocuments({ author: userId });
+
+    res.json({ 
+      tweets, 
+      totalTweets,
+      page: parseInt(page), 
+      limit: parseInt(limit) 
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching user tweets' });
+  }
+};
+
+// Get tweet analytics
+const getTweetAnalytics = async (req, res) => {
+  try {
+    const { tweetId } = req.params;
+    const userId = req.user._id;
+
+    const tweet = await Tweet.findById(tweetId);
+    
+    if (!tweet) {
+      return res.status(404).json({ error: 'Tweet not found' });
+    }
+
+    // Only tweet author can see detailed analytics
+    if (tweet.author.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    res.json({
+      tweetId: tweet._id,
+      likesCount: tweet.likesCount,
+      retweetsCount: tweet.retweetsCount,
+      repliesCount: tweet.repliesCount,
+      createdAt: tweet.createdAt,
+      engagementRate: ((tweet.likesCount + tweet.retweetsCount + tweet.repliesCount) / Math.max(tweet.author.followersCount, 1) * 100).toFixed(2)
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching analytics' });
+  }
+};
+
+module.exports = { createTweet, getTweets, likeTweet, deleteTweet, getPersonalizedTimeline, getUserTweets, getTweetAnalytics };
