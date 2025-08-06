@@ -28,8 +28,6 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 ### Technical Features
 - 📊 **RESTful API Design** - Clean, intuitive endpoints
 - 🛡️ **Security First** - Input validation, rate limiting, CORS protection
-- 📈 **Scalable Architecture** - Modular design with separation of concerns
-- 🗄️ **Database Optimization** - Efficient MongoDB queries with proper indexing
 - 📝 **Comprehensive Validation** - Request validation with detailed error messages
 - 🚦 **Error Handling** - Consistent error responses across all endpoints
 
@@ -114,7 +112,7 @@ twitter-backend/
 4. **Start MongoDB**
    ```bash
    # If using local MongoDB
-   mongod
+   mongosh
    
    # Or ensure MongoDB Atlas connection is configured
    ```
@@ -128,11 +126,6 @@ twitter-backend/
    npm start
    ```
 
-6. **Verify installation**
-   ```bash
-   curl http://localhost:5000/
-   # Should return: {"message":"Twitter Backend API is running!"}
-   ```
 
 ## 📚 API Documentation
 
