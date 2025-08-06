@@ -13,15 +13,17 @@ const getUserProfile = async (req, res) => {
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    const { displayName, bio } = req.body;
+    const { displayName, bio, profilePicture,coverPicture } = req.body;
     const userId = req.user._id;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         ...(displayName && { displayName }),
-        ...(bio !== undefined && { bio }) // Allow empty string for bio
-      },
+        ...(bio !== undefined && { bio }) ,
+       ...(profilePicture && { profilePicture }),
+       ...(coverPicture && {coverPicture})   
+       },
       { new: true, runValidators: true }
     ).select('-password');
 
