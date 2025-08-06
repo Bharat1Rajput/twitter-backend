@@ -1,10 +1,9 @@
-# Twitter Backend API 🐦
+# Twitter Backend 🐦
 
 A **production-ready Twitter clone backend** built with modern Node.js technologies, showcasing scalable architecture, security best practices, and comprehensive API design.
 
 ## 🚀 Live Demo
-- **API Base URL:** `https://your-deployed-api.com` (Coming Soon)
-- **API Documentation:** [Postman Collection](link-to-postman)
+- **API Base URL:** (https://twitter-backend-3lau.onrender.com)
 
 ## 📋 Table of Contents
 - [Features](#features)
@@ -12,9 +11,7 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
 - [Security Features](#security-features)
-- [Performance Optimizations](#performance-optimizations)
 - [Contributing](#contributing)
 
 ## ✨ Features
