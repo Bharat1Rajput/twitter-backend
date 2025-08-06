@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const tweetRoutes = require('./routes/tweets');
 const userRoutes = require('./routes/user');
+const searchRoutes = require('./routes/search');
 
 // Connect to database
 connectDB();
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/tweets', tweetRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Twitter Backend API is running!' });
