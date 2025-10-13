@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DM Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>Simple DM Test</h1>
+  <input id="userId" placeholder="Enter your userId" />
+  <button onclick="join()">Join</button>
+  <br><br>
+  <input id="receiverId" placeholder="Receiver ID" />
+  <input id="message" placeholder="Message" />
+  <button onclick="sendMessage()">Send</button>
+
+  <div id="messages"></div>
+
+  <script>
+    const socket = io('http://localhost:3000');
+
+    function join() {
+      const userId = document.getElementById('userId').value;
+      socket.emit('join', userId);
+    }
+
+    socket.on('new_message', (msg) => {
+      const messagesDiv = document.getElementById('messages');
+      messagesDiv.innerHTML += `<p><b>${msg.sender.displayName}:</b> ${msg.content}</p>`;
+    });
+
+    function sendMessage() {
+      const senderId = document.getElementById('userId').value;
+      const receiverId = document.getElementById('receiverId').value;
+      const content = document.getElementById('message').value;
+
+      socket.emit('send_message', { senderId, receiverId, content });
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 const Tweet = require('../models/tweet');
 const User = require('../models/user');
+const Notification = require('../models/notification');
 
 // Create tweet
 const createTweet = async (req, res) => {
@@ -63,6 +64,16 @@ const likeTweet = async (req, res) => {
       tweet.likes.push(userId);
       tweet.likesCount += 1;
     }
+    // ✅ Create notification if user likes someone else's tweet
+      if (tweet.author.toString() !== userId.toString()) {
+        await Notification.create({
+          userId: tweet.author,   // Tweet owner (receiver of notification)
+          actorId: userId,        // The user who liked
+          type: "like",
+          tweetId: tweet._id
+        });
+      }
+    
 
     await tweet.save();
     res.json({ message: isLiked ? 'Tweet unliked' : 'Tweet liked', likesCount: tweet.likesCount });
@@ -92,6 +103,91 @@ const deleteTweet = async (req, res) => {
     res.status(500).json({ error: 'Error deleting tweet' });
   }
 };
+
+const replyTweet = async (req, res) => {
+  try {
+    const { tweetId } = req.params; // tweet being replied to
+    const { content } = req.body;
+    const userId = req.user._id;
+
+    const parent = await Tweet.findById(tweetId);
+    if (!parent) {
+      return res.status(404).json({ error: "Parent tweet not found" });
+    }
+
+    const reply = new Tweet({
+      author: userId,
+      content,
+      replyTo: tweetId
+    });
+
+    await reply.save();
+
+    parent.replies.push(reply._id);
+    parent.repliesCount += 1;
+    await parent.save();
+
+    // ✅ Create notification for reply
+    if (parent.author.toString() !== userId.toString()) {
+      await Notification.create({
+        userId: parent.author,   // Original tweet owner (receiver of notification)
+        actorId: userId,         // The user who replied
+        type: "reply",
+        tweetId: parent._id
+      });
+    }
+
+    res.status(201).json({ message: "Reply posted", reply });
+  } catch (error) {
+    res.status(500).json({ error: "Error posting reply" });
+  }
+};
+const retweet = async (req, res) => {
+  try {
+    const { tweetId } = req.params;
+    const userId = req.user._id;
+
+    const tweet = await Tweet.findById(tweetId);
+    if (!tweet) {
+      return res.status(404).json({ error: "Tweet not found" });
+    }
+
+    const existingRetweet = tweet.retweets.find(
+      (r) => r.user.toString() === userId.toString()
+    );
+
+    if (existingRetweet) {
+      // Undo retweet
+      tweet.retweets = tweet.retweets.filter(
+        (r) => r.user.toString() !== userId.toString()
+      );
+      tweet.retweetsCount -= 1;
+      await tweet.save();
+
+      return res.json({ message: "Retweet removed", retweetsCount: tweet.retweetsCount });
+    } else {
+      // Add new retweet
+      tweet.retweets.push({ user: userId });
+      tweet.retweetsCount += 1;
+      await tweet.save();
+
+      // ✅ Create notification for retweet
+      if (tweet.author.toString() !== userId.toString()) {
+        await Notification.create({
+          userId: tweet.author,   // Original tweet owner (receiver of notification)
+          actorId: userId,        // The user who retweeted
+          type: "retweet",
+          tweetId: tweet._id
+        });
+      }
+
+      return res.json({ message: "Retweeted successfully", retweetsCount: tweet.retweetsCount });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error retweeting" });
+  }
+};
+
 
 // Get personalized timeline (tweets from followed users)
 const getPersonalizedTimeline = async (req, res) => {
@@ -179,4 +275,4 @@ const getTweetAnalytics = async (req, res) => {
   }
 };
 
-module.exports = { createTweet, getTweets, likeTweet, deleteTweet, getPersonalizedTimeline, getUserTweets, getTweetAnalytics };
+module.exports = { createTweet, getTweets, likeTweet, deleteTweet, getPersonalizedTimeline, getUserTweets, getTweetAnalytics, replyTweet, retweet };

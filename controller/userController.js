@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Notification = require('../models/notification');
 
 // Get user profile
 const getUserProfile = async (req, res) => {
@@ -76,7 +77,15 @@ const followUser = async (req, res) => {
       currentUser.followingCount += 1;
       userToFollow.followersCount += 1;
     }
-
+    // ✅ Create notification if user follows someone
+    if (!isFollowing) {
+      await Notification.create({
+        userId: userToFollow._id, // The user being followed (receiver of notification)
+        actorId: currentUser._id, // The user who followed
+        type: "follow"
+      });
+    }
+    
     await currentUser.save();
     await userToFollow.save();
 

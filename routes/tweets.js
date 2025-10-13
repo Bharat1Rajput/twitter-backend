@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTweet, getTweets, likeTweet, deleteTweet,getPersonalizedTimeline,getUserTweets,getTweetAnalytics } = require('../controller/tweetController');
+const { createTweet, getTweets, likeTweet, deleteTweet,getPersonalizedTimeline,getUserTweets,getTweetAnalytics,replyTweet,retweet } = require('../controller/tweetController');
 const authenticate = require('../middleware/auth');
 const handleValidationErrors = require('../middleware/validation');
 const {
@@ -16,6 +16,12 @@ router.post('/', authenticate, createTweetValidation, handleValidationErrors, cr
 
 // Get tweets
 router.get('/', getTweetsValidation, handleValidationErrors, getTweets);
+
+// Reply to tweet
+router.post('/:tweetId/reply', authenticate, createTweetValidation, handleValidationErrors, replyTweet);
+
+// Retweet
+router.post('/:tweetId/retweet', authenticate, retweet);
 
 // Like/Unlike tweet
 router.post('/:tweetId/like', authenticate, likeTweetValidation, handleValidationErrors, likeTweet);
