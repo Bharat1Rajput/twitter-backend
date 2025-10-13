@@ -24,12 +24,14 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 - 👥 **Follow System** - Follow/unfollow users with relationship management
 - 🔍 **Search Functionality** - Search users and tweets
 - 📱 **Timeline Feed** - Personalized timeline based on following
+- 💬 **Direct Messaging (DM)** - Real-time chat between users with sender/receiver mapping
 
 ### Technical Features
 - 📊 **RESTful API Design** - Clean, intuitive endpoints
 - 🛡️ **Security First** - Input validation, rate limiting, CORS protection
 - 📝 **Comprehensive Validation** - Request validation with detailed error messages
 - 🚦 **Error Handling** - Consistent error responses across all endpoints
+- ⚡ **Real-Time Features** - WebSocket integration (Socket.IO) for live messaging
 
 ## 🛠 Tech Stack
 
@@ -57,23 +59,29 @@ twitter-backend/
 │   ├── tweetController.js
 │   ├── userController.js
 │   └── searchController.js
+|   └── dmController.js    # Direct Messaging controller
 ├── middleware/          # Custom middleware
 │   ├── auth.js         # Authentication middleware
 │   └── validation.js   # Validation middleware
+|   └── rateLimiter.js
 ├── models/             # Database models
 │   ├── User.js
 │   └── Tweet.js
+│   └── Message.js         # DM model
 ├── routes/             # API routes
 │   ├── auth.js
 │   ├── tweets.js
 │   ├── users.js
 │   └── search.js
+│   └── message.js              # Direct Messaging routes
 ├── validators/         # Input validation schemas
 │   ├── userValidation.js
 │   └── tweetValidation.js
+|   └── dmValidation.js
 ├── .env              # Environment variables
 ├── .gitignore
 ├── package.json
+└── socket.js
 └── server.js         # Application entry point
 ```
 
@@ -166,6 +174,14 @@ twitter-backend/
 | GET | `/api/search/users?q=query` | Search users | Yes |
 | GET | `/api/search/tweets?q=query` | Search tweets | Yes |
 
+### Search Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/message/` |send new msg | Yes |
+| GET | `/api/message/:userId` | get conversion | Yes |
+| PUT | `/api/message/:messageId/read` | mark as Read | Yes |
+
 
 
 ## 🔒 Security Features
@@ -174,6 +190,7 @@ twitter-backend/
 - **Password Security:** bcrypt hashing with salt rounds
 - **Input Validation:** Comprehensive validation using express-validator
 - **CORS Protection:** Cross-origin resource sharing configuration
+- **Rate Limiting**: Limit API requests to prevent brute-force attacks (express-rate-limit)
 - **Security Headers:** Helmet.js for setting various HTTP headers
 - **Data Sanitization:** Input sanitization to prevent XSS attacks
 - **Authorization:** Route-level authentication middleware
@@ -182,7 +199,6 @@ twitter-backend/
 ## 📈 Future Enhancements
 
 - [ ] **Caching Layer** - Redis implementation for improved performance
-- [ ] **Real-time Features** - WebSocket integration for live notifications
 - [ ] **File Upload** - Image/video upload for tweets and profiles
 - [ ] **Email Service** - Email verification and notifications
 - [ ] **Push Notifications** - Mobile push notification system
