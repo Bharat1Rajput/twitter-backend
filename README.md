@@ -5,21 +5,13 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 ## 🚀 Live Demo
 - **API Base URL:** (https://twitter-backend-3lau.onrender.com)
 
-## 📋 Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [API Documentation](#api-documentation)
-- [Security Features](#security-features)
-- [Contributing](#contributing)
-
-## ✨ Features
-
 ### Core Functionality
 - 🔐 **User Authentication** - JWT-based secure authentication
 - 👤 **User Management** - Profile creation, updates, and user discovery
 - 🐦 **Tweet System** - Create, read, delete tweets with 280 character limit
+- 🖼 **Media Uploads**  
+  - Upload **images with tweets** (multiple images per tweet)  
+  - Upload **profile picture** and **cover image** for users  
 - ❤️ **Social Interactions** - Like/unlike tweets with real-time counts
 - 👥 **Follow System** - Follow/unfollow users with relationship management
 - 🔍 **Search Functionality** - Search users and tweets
@@ -32,6 +24,7 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 - 📝 **Comprehensive Validation** - Request validation with detailed error messages
 - 🚦 **Error Handling** - Consistent error responses across all endpoints
 - ⚡ **Real-Time Features** - WebSocket integration (Socket.IO) for live messaging
+- 🗂 **Static Media Serving** - Publicly accessible media URLs for uploaded images
 
 ## 🛠 Tech Stack
 
@@ -41,6 +34,7 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 - **Database:** MongoDB with Mongoose ODM
 - **Authentication:** JWT (JSON Web Tokens)
 - **Validation:** express-validator
+- **File Uploads:** Multer (disk storage) + Express static file serving
 - **Security:** bcryptjs, helmet, cors, express-rate-limit
 
 ### Development Tools
@@ -50,41 +44,44 @@ A **production-ready Twitter clone backend** built with modern Node.js technolog
 
 ## 🏗 Architecture
 
-```
+```bash
 twitter-backend/
-├── config/              # Database configuration
-│   └── database.js
-├── controllers/         # Business logic layer
+├── config/                 # Configuration (DB, multer, etc.)
+│   ├── database.js
+│   
+├── controllers/            # Business logic layer
 │   ├── authController.js
-│   ├── tweetController.js
-│   ├── userController.js
+│   ├── tweetController.js  # Tweet creation with image upload support
+│   ├── userController.js   # Profile update with profile/cover image  upload
 │   └── searchController.js
-|   └── dmController.js    # Direct Messaging controller
-├── middleware/          # Custom middleware
-│   ├── auth.js         # Authentication middleware
-│   └── validation.js   # Validation middleware
-|   └── rateLimiter.js
-├── models/             # Database models
-│   ├── User.js
-│   └── Tweet.js
-│   └── Message.js         # DM model
-├── routes/             # API routes
+│   └── dmController.js     # Direct Messaging controller
+├── middleware/             # Custom middleware
+│   ├── auth.js             # Authentication middleware
+│   └── validation.js       # Validation middleware (express-validator)
+│   └── rateLimiter.js
+|   └── multerUpload.js     # Multer storage, fileFilter & limits
+├── models/                 # Database models
+│   ├── User.js             # profilePicture, coverPicture fields
+│   └── Tweet.js            # images[] field for tweet media
+│   └── Message.js          # DM model
+├── routes/                 # API routes
 │   ├── auth.js
-│   ├── tweets.js
-│   ├── users.js
+│   ├── tweets.js           # POST /api/tweets with multipart/form-data
+│   ├── users.js            # PUT/PATCH /api/users/profile with images
 │   └── search.js
-│   └── message.js              # Direct Messaging routes
-├── validators/         # Input validation schemas
+│   └── message.js          # Direct Messaging routes
+├── upload/                 # Local folder for uploaded images (profile, cover, tweets)
+├── validators/             # Input validation schemas
 │   ├── userValidation.js
 │   └── tweetValidation.js
-|   └── dmValidation.js
-├── .env              # Environment variables
+│   └── dmValidation.js
+├── .env                    # Environment variables
 ├── .gitignore
 ├── package.json
-└── socket.js
-└── server.js         # Application entry point
-```
+├── socket.js
+└── server.js               # Application entry point
 
+```
 ## 🚀 Installation
 
 ### Prerequisites
@@ -199,7 +196,6 @@ twitter-backend/
 ## 📈 Future Enhancements
 
 - [ ] **Caching Layer** - Redis implementation for improved performance
-- [ ] **File Upload** - Image/video upload for tweets and profiles
 - [ ] **Email Service** - Email verification and notifications
 - [ ] **Push Notifications** - Mobile push notification system
 - [ ] **Analytics** - Tweet engagement and user activity analytics
