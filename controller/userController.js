@@ -14,17 +14,27 @@ const getUserProfile = async (req, res) => {
 // Update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    const { displayName, bio, profilePicture,coverPicture } = req.body;
+    const { displayName, bio } = req.body;
     const userId = req.user._id;
+
+    // 🔹 Files from multer.fields():
+    const profileFile = req.files?.profilePicture?.[0];
+    const coverFile = req.files?.coverPicture?.[0];
+
+    // 🔹 Build URLs (make sure this matches app.use('/upload', ...))
+    const profilePicture = profileFile ? `/upload/${profileFile.filename}` : undefined;
+    const coverPicture = coverFile ? `/upload/${coverFile.filename}` : undefined;
+
+    const updateData = {
+      ...(displayName && { displayName }),
+      ...(bio !== undefined && { bio }),
+      ...(profilePicture && { profilePicture }),
+      ...(coverPicture && { coverPicture }),
+    };
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      {
-        ...(displayName && { displayName }),
-        ...(bio !== undefined && { bio }) ,
-       ...(profilePicture && { profilePicture }),
-       ...(coverPicture && {coverPicture})   
-       },
+      updateData,
       { new: true, runValidators: true }
     ).select('-password');
 
@@ -34,12 +44,15 @@ const updateUserProfile = async (req, res) => {
 
     res.json({
       message: 'Profile updated successfully',
-      user: updatedUser
+      user: updatedUser,
     });
   } catch (error) {
+    console.error('Error updating profile:', error);
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: error.message });
     }
+
     res.status(500).json({ error: 'Error updating profile' });
   }
 };

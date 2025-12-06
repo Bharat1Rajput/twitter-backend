@@ -6,6 +6,17 @@ const Notification = require('../models/notification');
 const createTweet = async (req, res) => {
   try {
     const { content } = req.body;
+
+    const images = [];
+    
+     if (req.files && req.files.length > 0) {
+      images = req.files.map((file) => `/uploads/${file.filename}`);
+    }
+    // If sometimes you might use upload.single('image')
+    else if (req.file) {
+      images = [`/uploads/${req.file.filename}`];
+    }
+
     
     const tweet = new Tweet({
       author: req.user._id,

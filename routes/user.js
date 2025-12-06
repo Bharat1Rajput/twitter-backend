@@ -1,13 +1,17 @@
 const express = require('express');
 const { getUserProfile, updateUserProfile, followUser, getUserByUsername,getUserFollowers,getUserFollowing } = require('../controller/userController');
 const authenticate = require('../middleware/auth');
+const multerUpload = require('../middleware/multerUpload');
 
 const router = express.Router();
 
 // Get current user profile
 router.get('/profile', authenticate, getUserProfile);
 // Update user profile
-router.put('/profile', authenticate, updateUserProfile);
+router.put('/profile', authenticate, multerUpload.fields([
+    { name: 'profilePicture', maxCount: 1 },
+    { name: 'coverPicture', maxCount: 1 },
+  ]), updateUserProfile);
 
 // Get user by username
 router.get('/:username', getUserByUsername);

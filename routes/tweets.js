@@ -8,11 +8,12 @@ const {
   deleteTweetValidation,
   getTweetsValidation
 } = require('../validators/tweetValidation');
+const multerUpload = require('../middleware/multerUpload');
 
 const router = express.Router();
 
 // Create tweet
-router.post('/', authenticate, createTweetValidation, handleValidationErrors, createTweet);
+router.post('/', authenticate,multerUpload.array('images',4), createTweetValidation, handleValidationErrors, createTweet);
 
 // Get tweets
 router.get('/', getTweetsValidation, handleValidationErrors, getTweets);

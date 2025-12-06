@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -38,6 +39,9 @@ app.use(cors());
 
 // Rate limiting
 app.use(generalLimiter);
+
+// upload static files
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
